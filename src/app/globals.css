@@ -4,43 +4,32 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ==================== CUSTOM VARIABLES ==================== */
 @layer base {
-  :root {
-    --color-bg-dark: #0a0f16;
-    --color-bg-darker: #050708;
-    --color-surface: #131b26;
-    --color-surface-alt: #1e293b;
-    --color-accent-cyan: #87ceeb;
-    --color-accent-yellow: #FFF096;
-    --color-accent-green: #00e054;
-    --color-text-primary: #f0f9ff;
-    --color-text-secondary: #a1a1a1;
-  }
-
-  /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
   }
 
   body {
     @apply bg-[#0a0f16] text-[#f0f9ff];
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Selection colors */
+  input,
+  textarea {
+    @apply bg-[#131b26] border border-[#1e293b] text-[#f0f9ff] rounded px-3 py-2 text-sm focus:outline-none focus:border-[#87ceeb];
+  }
+
+  button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
   ::selection {
     @apply bg-[#87ceeb] text-[#0a0f16];
   }
 
-  /* Scrollbar styling */
   ::-webkit-scrollbar {
     width: 8px;
-    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
@@ -48,279 +37,6 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-[#1e293b] rounded-full hover:bg-[#2d3748];
-  }
-
-  /* Focus visible for accessibility */
-  :focus-visible {
-    @apply outline-none ring-2 ring-[#87ceeb] ring-offset-2 ring-offset-[#0a0f16];
-  }
-
-  /* Input placeholders */
-  input::placeholder,
-  textarea::placeholder {
-    @apply text-stone-500;
-  }
-
-  /* Disabled state */
-  input:disabled,
-  textarea:disabled,
-  button:disabled {
-    @apply opacity-50 cursor-not-allowed;
-  }
-}
-
-/* ==================== ANIMATIONS ==================== */
-@layer components {
-  /* Fade In Animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
-  }
-
-  /* Slide Up Animation */
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.4s ease-out forwards;
-  }
-
-  /* Pulse Animation */
-  @keyframes pulse-custom {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-  .animate-pulse-custom {
-    animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  /* Shimmer Loading Effect */
-  @keyframes shimmer {
-    0% {
-      background-position: -1000px 0;
-    }
-    100% {
-      background-position: 1000px 0;
-    }
-  }
-
-  .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      #131b26 0%,
-      #1e293b 50%,
-      #131b26 100%
-    );
-    background-size: 1000px 100%;
-    animation: shimmer 2s infinite;
-  }
-
-  /* Spinner Animation */
-  @keyframes spin-custom {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .animate-spin-custom {
-    animation: spin-custom 1s linear infinite;
-  }
-
-  /* Glow Effect */
-  @keyframes glow {
-    0%, 100% {
-      box-shadow: 0 0 5px rgba(135, 206, 235, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(135, 206, 235, 0.5);
-    }
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-}
-
-/* ==================== UTILITY CLASSES ==================== */
-@layer utilities {
-  /* Glass Morphism */
-  .glass {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
-  }
-
-  /* Gradient Text */
-  .gradient-text {
-    @apply bg-gradient-to-r from-[#87ceeb] to-[#FFF096] bg-clip-text text-transparent;
-  }
-
-  /* Truncate */
-  .line-clamp-1 {
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* Safe Area for Mobile */
-  .safe-area {
-    @apply px-4 py-4 sm:px-6 sm:py-6;
-  }
-
-  /* Responsive Text */
-  .text-responsive {
-    @apply text-sm sm:text-base md:text-lg;
-  }
-
-  /* Hover Effects */
-  .hover-glow {
-    @apply transition-all duration-300 hover:shadow-lg hover:shadow-[#87ceeb]/50;
-  }
-
-  /* Focus Ring */
-  .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-[#87ceeb] focus:ring-offset-2 focus:ring-offset-[#0a0f16];
-  }
-
-  /* Border Gradient */
-  .border-gradient {
-    background: linear-gradient(135deg, #87ceeb, #FFF096) border-box;
-    border: 1px solid transparent;
-  }
-
-  /* Responsive Grid */
-  .grid-responsive {
-    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4;
-  }
-
-  /* Container */
-  .container-responsive {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-}
-
-/* ==================== FORM STYLES ==================== */
-@layer components {
-  /* Input Base */
-  .input-base {
-    @apply bg-[#131b26] border border-[#1e293b] text-[#f0f9ff] rounded-lg px-4 py-2.5 text-sm transition-all focus:outline-none focus:border-[#87ceeb] focus:ring-1 focus:ring-[#87ceeb];
-  }
-
-  /* Textarea Base */
-  .textarea-base {
-    @apply input-base resize-none;
-  }
-
-  /* Button Base */
-  .btn-base {
-    @apply inline-flex items-center justify-center font-bold transition-all duration-200 focus-ring;
-  }
-
-  .btn-primary {
-    @apply btn-base bg-[#87ceeb] text-[#0a0f16] hover:bg-white;
-  }
-
-  .btn-secondary {
-    @apply btn-base border border-[#1e293b] text-stone-400 hover:border-[#87ceeb] hover:text-[#87ceeb];
-  }
-
-  .btn-danger {
-    @apply btn-base border border-red-800 text-red-400 hover:bg-red-900/20;
-  }
-
-  /* Label Base */
-  .label-base {
-    @apply text-xs sm:text-sm text-stone-400 font-bold uppercase tracking-wide;
-  }
-}
-
-/* ==================== RESPONSIVE MEDIA QUERIES ==================== */
-@media (max-width: 640px) {
-  /* Mobile optimizations */
-  body {
-    font-size: 14px;
-  }
-
-  /* Larger touch targets on mobile */
-  button,
-  input,
-  textarea,
-  select {
-    min-height: 44px;
-  }
-
-  /* Reduce padding on mobile */
-  .px-6 {
-    @apply px-4;
-  }
-
-  .py-8 {
-    @apply py-6;
-  }
-}
-
-/* ==================== DARK MODE SUPPORT ==================== */
-@media (prefers-color-scheme: dark) {
-  body {
-    color-scheme: dark;
-  }
-}
-
-/* ==================== REDUCED MOTION ==================== */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ==================== PRINT STYLES ==================== */
-@media print {
-  .no-print {
-    display: none;
-  }
-
-  body {
-    background-color: white;
-    color: black;
+    @apply bg-[#1e293b];
   }
 }

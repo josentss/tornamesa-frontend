@@ -6,49 +6,24 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import Link from 'next/link';
-import {
-  Header,
-  Footer,
-  LoadingSpinner,
-  AlbumCard,
-  StatsCard,
-  RatingStars
-} from '@/components/shared';
+import { Header, Footer, LoadingSpinner } from '@/components/shared';
 
-// 🎯 LANDING VIEW
 function LandingView() {
   return (
-    <div className="flex-1 flex flex-col justify-center items-center px-4 py-12 sm:py-0 min-h-[60vh]">
-      <div className="max-w-xl mx-auto space-y-6 text-center">
-        <div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-[#f0f9ff] lowercase mb-2">
-            tornamesa
-          </h1>
-          <p className="text-xs sm:text-sm text-stone-400">
-            Letterboxd para música
-          </p>
-        </div>
-
-        <p className="text-base sm:text-lg md:text-xl font-light text-stone-400 leading-relaxed">
-          Registra los discos que escuchas.
-          <br />
-          Guarda tus favoritos.
-          <br />
-          Dile a tus amigos qué estás oyendo.
+    <div className="flex-1 flex items-center justify-center px-4 py-20">
+      <div className="max-w-md text-center space-y-8">
+        <h1 className="text-5xl font-bold text-[#f0f9ff]">tornamesa</h1>
+        <p className="text-lg text-stone-400">
+          Registra los discos que escuchas.<br />
+          Guarda tus favoritos.<br />
+          Comparte con tus amigos.
         </p>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-          <Link
-            href="/register"
-            className="inline-block bg-[#87ceeb] text-[#0a0f16] px-6 sm:px-8 py-2.5 sm:py-3 rounded font-bold hover:bg-white transition-all text-sm sm:text-base"
-          >
-            Empezar ahora
+        <div className="flex gap-3 justify-center">
+          <Link href="/auth/register" className="bg-[#87ceeb] text-[#0a0f16] px-6 py-2 font-bold hover:bg-white">
+            Empezar
           </Link>
-          <Link
-            href="/login"
-            className="inline-block border border-[#1e293b] text-stone-400 px-6 sm:px-8 py-2.5 sm:py-3 rounded hover:text-[#87ceeb] hover:border-[#87ceeb] transition-all text-sm sm:text-base"
-          >
-            Ya tengo cuenta
+          <Link href="/auth/login" className="border border-[#1e293b] text-stone-400 px-6 py-2 hover:border-[#87ceeb] hover:text-[#87ceeb]">
+            Entrar
           </Link>
         </div>
       </div>
@@ -56,10 +31,8 @@ function LandingView() {
   );
 }
 
-// 📊 DASHBOARD VIEW
 function DashboardView({ historial, stats }) {
   const [topAlbums, setTopAlbums] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (historial && historial.length > 0) {
@@ -84,141 +57,82 @@ function DashboardView({ historial, stats }) {
 
       setTopAlbums(sorted);
     }
-    setLoading(false);
   }, [historial]);
 
-  if (loading) return <LoadingSpinner message="Cargando tu actividad..." />;
-
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10 sm:space-y-16">
-      {/* Stats Section */}
-      <section className="space-y-4">
-        <h2 className="text-xs sm:text-sm font-bold text-stone-500 uppercase tracking-widest">
-          Tu Actividad
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <StatsCard
-            label="Álbumes Escuchados"
-            value={stats.totalAlbumsListened || 0}
-          />
-          <StatsCard
-            label="Minutos Escuchados"
-            value={Math.round(stats.totalMinutesSpended / 60) || 0}
-            unit="h"
-          />
-          <StatsCard
-            label="Esta Semana"
-            value={historial.filter(item => {
-              const date = new Date(item.listened_at);
-              const week = new Date();
-              week.setDate(week.getDate() - 7);
-              return date > week;
-            }).length}
-            isHidden="hidden md:block"
-          />
+    <main className="max-w-7xl mx-auto px-4 py-8 space-y-12">
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="border border-[#1e293b] p-3">
+          <p className="text-xs text-stone-500 mb-1">Álbumes</p>
+          <p className="text-2xl font-bold text-[#87ceeb]">{stats.totalAlbumsListened || 0}</p>
         </div>
-      </section>
+        <div className="border border-[#1e293b] p-3">
+          <p className="text-xs text-stone-500 mb-1">Horas</p>
+          <p className="text-2xl font-bold text-[#87ceeb]">{Math.round(stats.totalMinutesSpended / 60) || 0}</p>
+        </div>
+        <div className="border border-[#1e293b] p-3">
+          <p className="text-xs text-stone-500 mb-1">Minutos</p>
+          <p className="text-2xl font-bold text-[#87ceeb]">{stats.totalMinutesSpended || 0}</p>
+        </div>
+      </div>
 
-      {/* Top Albums Section */}
-      <section className="space-y-4">
-        <h2 className="text-xs sm:text-sm font-bold text-stone-500 uppercase tracking-widest">
-          Tus Favoritos
-        </h2>
-        {topAlbums.length > 0 ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4">
+      {/* Top Albums */}
+      {topAlbums.length > 0 && (
+        <div>
+          <h2 className="text-sm font-bold text-stone-500 mb-4">Favoritos</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             {topAlbums.map(album => (
-              <div key={album.spotify_id} className="space-y-2">
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-[#131b26] border border-[#1e293b] group hover:border-[#87ceeb] transition-all">
-                  <img
-                    src={album.cover_url || '/placeholder.jpg'}
-                    alt={album.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 right-2 bg-[#87ceeb] text-[#0a0f16] text-xs font-bold px-2 py-1 rounded">
+              <div key={album.spotify_id}>
+                <div className="aspect-square bg-[#131b26] border border-[#1e293b] relative mb-2">
+                  <img src={album.cover_url} alt={album.title} className="w-full h-full object-cover" />
+                  <div className="absolute top-1 right-1 bg-[#87ceeb] text-[#0a0f16] text-xs font-bold px-2 py-0.5">
                     {album.plays}
                   </div>
                 </div>
-                <div className="min-h-10">
-                  <p className="text-xs sm:text-sm font-medium text-[#f0f9ff] line-clamp-2">
-                    {album.title}
-                  </p>
-                  <p className="text-[10px] sm:text-xs text-stone-400 line-clamp-1">
-                    {album.artist}
-                  </p>
-                </div>
+                <p className="text-xs font-medium text-[#f0f9ff] truncate">{album.title}</p>
+                <p className="text-xs text-stone-400 truncate">{album.artist}</p>
               </div>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-stone-400 text-sm mb-4">
-              Aún no tienes escuchas registradas
-            </p>
-            <Link
-              href="/buscar"
-              className="inline-block bg-[#87ceeb] text-[#0a0f16] px-4 py-2 rounded text-sm font-bold hover:bg-white transition-all"
-            >
-              Buscar álbumes
-            </Link>
-          </div>
-        )}
-      </section>
+        </div>
+      )}
 
-      {/* Recent Listens Section */}
+      {/* Recent */}
       {historial.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-xs sm:text-sm font-bold text-stone-500 uppercase tracking-widest">
-            Escuchas Recientes
-          </h2>
+        <div>
+          <h2 className="text-sm font-bold text-stone-500 mb-4">Recientes</h2>
           <div className="space-y-2">
             {historial.slice(0, 10).map(item => (
-              <div
-                key={item.id}
-                className="bg-[#131b26] border border-[#1e293b] rounded p-3 sm:p-4 flex items-start gap-3 hover:border-[#87ceeb] transition-all"
-              >
-                <img
-                  src={item.albums?.cover_url || '/placeholder.jpg'}
-                  alt={item.albums?.title}
-                  className="w-12 h-12 rounded object-cover flex-shrink-0"
-                />
+              <div key={item.id} className="flex gap-3 border border-[#1e293b] p-3 hover:border-[#87ceeb]">
+                <img src={item.albums?.cover_url} alt="" className="w-10 h-10 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm sm:text-base font-medium text-[#f0f9ff] truncate">
-                    {item.albums?.title || 'Desconocido'}
-                  </p>
-                  <p className="text-xs sm:text-sm text-stone-400 truncate">
-                    {item.albums?.artist || 'Artista desconocido'}
-                  </p>
+                  <p className="text-sm font-medium text-[#f0f9ff] truncate">{item.albums?.title}</p>
+                  <p className="text-xs text-stone-400">{item.albums?.artist}</p>
                 </div>
-                <div className="flex-shrink-0 text-right">
-                  {item.rating && (
-                    <div className="text-yellow-400 text-lg">
-                      {'★'.repeat(item.rating)}
-                    </div>
-                  )}
-                  <p className="text-xs text-stone-500 mt-1">
-                    {new Date(item.listened_at).toLocaleDateString('es-ES', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </p>
-                </div>
+                {item.rating && <div className="text-[#FFF096]">{'★'.repeat(item.rating)}</div>}
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      )}
+
+      {topAlbums.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-stone-400 mb-4">Aún no tienes escuchas registradas</p>
+          <Link href="/buscar" className="bg-[#87ceeb] text-[#0a0f16] px-4 py-2 font-bold hover:bg-white inline-block">
+            Buscar álbumes
+          </Link>
+        </div>
       )}
     </main>
   );
 }
 
-// ==================== MAIN PAGE ====================
 export default function Page() {
   const { user, loading: authLoading } = useAuth();
   const [historial, setHistorial] = useState([]);
-  const [stats, setStats] = useState({
-    totalAlbumsListened: 0,
-    totalMinutesSpended: 0
-  });
+  const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -230,13 +144,10 @@ export default function Page() {
 
       try {
         const data = await api.getUserHistory(user.id);
-        if (data) {
-          setHistorial(data.history || []);
-          setStats(data.stats || {});
-        }
+        setHistorial(data.history || []);
+        setStats(data.stats || {});
       } catch (error) {
-        console.error('Error fetching history:', error);
-        setHistorial([]);
+        console.error('Error:', error);
       } finally {
         setLoading(false);
       }
@@ -251,20 +162,16 @@ export default function Page() {
     return (
       <div className="min-h-screen bg-[#0a0f16] text-[#f0f9ff] flex flex-col">
         <Header />
-        <LoadingSpinner message="Cargando tu dashboard..." />
+        <LoadingSpinner />
         <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f16] text-[#f0f9ff] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#0a0f16] text-[#f0f9ff] flex flex-col">
       <Header />
-      {user ? (
-        <DashboardView historial={historial} stats={stats} />
-      ) : (
-        <LandingView />
-      )}
+      {user ? <DashboardView historial={historial} stats={stats} /> : <LandingView />}
       <Footer />
     </div>
   );

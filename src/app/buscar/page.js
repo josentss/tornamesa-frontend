@@ -6,14 +6,7 @@ import { useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import {
-  Header,
-  Footer,
-  LoadingSpinner,
-  ErrorMessage,
-  SuccessMessage,
-  AlbumCard
-} from '@/components/shared';
+import { Header, Footer, ErrorMessage, SuccessMessage, AlbumCard, LoadingSpinner } from '@/components/shared';
 
 export default function BuscarPage() {
   const { user } = useAuth();
@@ -30,7 +23,7 @@ export default function BuscarPage() {
   const handleSearch = useCallback(async (e) => {
     e.preventDefault();
     if (!query.trim() || query.trim().length < 2) {
-      setError('Busca debe tener al menos 2 caracteres');
+      setError('Mínimo 2 caracteres');
       return;
     }
 
@@ -43,10 +36,11 @@ export default function BuscarPage() {
       setResultados(Array.isArray(data) ? data : []);
 
       if (!Array.isArray(data) || data.length === 0) {
-        setError('No se encontraron álbumes. Intenta con otro término.');
+        setError('No se encontraron resultados');
       }
     } catch (err) {
-      setError(err.message || 'Error al buscar álbumes');
+      console.error('Error:', err);
+      setError('Error al conectar con el servidor');
       setResultados([]);
     } finally {
       setLoading(false);
@@ -55,117 +49,67 @@ export default function BuscarPage() {
 
   const handleGuardar = async (album) => {
     if (!user) {
-      setError('Debes iniciar sesión para guardar escuchas');
-      setTimeout(() => router.push('/login'), 2000);
+      setError('Inicia sesión para guardar');
+      setTimeout(() => router.push('/auth/login'), 2000);
       return;
     }
 
     setSavingId(album.id);
     try {
       await api.registerListen(album.id, user.id, null, null);
-      setNotification(`✓ Guardado: ${album.title}`);
+      setNotification(`${album.title} guardado`);
       setTimeout(() => setNotification(null), 3000);
     } catch (err) {
-      setError(err.message || 'Error al guardar');
+      console.error('Error:', err);
+      setError('Error al guardar');
     } finally {
       setSavingId(null);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f16] text-[#f0f9ff] font-sans flex flex-col">
-      <Header currentPage="buscar" />
+    <div className="min-h-screen bg-[#0a0f16] text-[#f0f9ff] flex flex-col">
+      <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
-        {/* Barra de Búsqueda */}
-        <div className="mb-8 sm:mb-12">
-          <form onSubmit={handleSearch} className="max-w-xl">
-            <div className="relative">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar álbumes, artistas..."
-                className="w-full bg-[#131b26] border border-[#1e293b] text-[#f0f9ff] rounded-lg px-4 sm:px-5 py-3 sm:py-4 text-sm sm:text-base focus:outline-none focus:border-[#87ceeb] focus:ring-1 focus:ring-[#87ceeb] placeholder-stone-500 transition-all"
-                autoFocus
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#87ceeb] hover:text-white disabled:opacity-50 transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.35-4.35"></path>
-                </svg>
-              </button>
-            </div>
-          </form>
-
-          <p className="text-xs sm:text-sm text-stone-500 mt-3">
-            💡 Prueba: "Pink Floyd", "The Beatles", "Kendrick Lamar"
-          </p>
-        </div>
-
-        {/* Mensajes */}
-        {error && (
-          <ErrorMessage
-            message={error}
-            onDismiss={() => setError(null)}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+        <form onSubmit={handleSearch} className="mb-8">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar álbum..."
+            className="w-full max-w-md"
+            autoFocus
           />
-        )}
+        </form>
 
-        {notification && (
-          <SuccessMessage
-            message={notification}
-            onDismiss={() => setNotification(null)}
-            autoClose={3000}
-          />
-        )}
+        {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
+        {notification && <SuccessMessage message={notification} />}
 
-        {/* Loading State */}
-        {loading && <LoadingSpinner message="Buscando álbumes..." />}
+        {loading && <LoadingSpinner />}
 
-        {/* Resultados Grid */}
         {!loading && searched && resultados.length > 0 && (
-          <div>
-            <p className="text-sm text-stone-400 mb-6">
-              Se encontraron <span className="text-[#87ceeb] font-bold">{resultados.length}</span> álbumes
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-              {resultados.map((album) => (
-                <AlbumCard
-                  key={album.id}
-                  album={album}
-                  onSave={handleGuardar}
-                  loading={savingId === album.id}
-                />
-              ))}
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
+            {resultados.map((album) => (
+              <AlbumCard
+                key={album.id}
+                album={album}
+                onSave={handleGuardar}
+                loading={savingId === album.id}
+              />
+            ))}
           </div>
         )}
 
-        {/* Empty State */}
-        {!loading && !searched && resultados.length === 0 && (
-          <div className="text-center py-12 sm:py-20">
-            <div className="text-4xl sm:text-6xl mb-4">🎵</div>
-            <p className="text-lg sm:text-xl text-stone-400 mb-2">Busca tu álbum favorito</p>
-            <p className="text-sm text-stone-500">
-              Escribe el nombre de un artista o álbum para comenzar
-            </p>
+        {!loading && !searched && (
+          <div className="text-center py-20 text-stone-400">
+            <p>Escribe para buscar</p>
           </div>
         )}
 
-        {/* No Results */}
         {!loading && searched && resultados.length === 0 && !error && (
-          <div className="text-center py-12 sm:py-20">
-            <div className="text-3xl mb-4">🔍</div>
-            <p className="text-lg text-stone-400">
-              No encontramos resultados para "{query}"
-            </p>
-            <p className="text-sm text-stone-500 mt-2">
-              Intenta con otro término de búsqueda
-            </p>
+          <div className="text-center py-20 text-stone-400">
+            <p>No hay resultados para "{query}"</p>
           </div>
         )}
       </main>
