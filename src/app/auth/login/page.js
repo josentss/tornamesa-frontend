@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ErrorMessage, LoadingSpinner } from "../../components/shared";
+import { ErrorMessage, LoadingSpinner } from "../../../components/shared";
 
 export default function LoginPage() {
   const { signIn } = useAuth();
