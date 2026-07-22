@@ -1,70 +1,75 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+// tornamesa-frontend/src/lib/api.js
 
-export const api = {
-  // Buscar álbumes en Spotify a través del backend
-  searchAlbums: async (query) => {
-    console.log("🔍 Intentando conectar a:", `${API_BASE_URL}/api/search?q=${query}`);
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-    const response = await fetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(query)}`);
+// 🔧 FUNCIONES AUXILIARES
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || `Error ${response.status}`);
+  }
+  return response.json();
+};
 
-    if (!response.ok) {
-      const textoError = await response.text();
-      throw new Error(`Código ${response.status}: ${textoError || response.statusText}`);
-    }
-    return response.json();
-  },
-
-  // Registrar una nueva escucha de álbum
-  registerListen: async (albumId, userId, rating, review) => {
-    const response = await fetch(`${API_BASE_URL}/api/listen`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ albumId, userId, rating, review }),
+const fetchApi = async (endpoint, options = {}) => {
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      },
+      ...options
     });
-    if (!response.ok) throw new Error('Error al registrar la escucha');
-    return response.json();
-  },
-
-  // Obtener historial y estadísticas del usuario
-  getUserHistory: async (userId) => {
-    const response = await fetch(`${API_BASE_URL}/api/users/${userId}/history`);
-    if (!response.ok) throw new Error('Error al obtener el historial');
-    return response.json();
-  },
-
-  // Generar el resumen mensual (Wrapped)
-  generateMonthlySummary: async (userId, year, month) => {
-    const response = await fetch(`${API_BASE_URL}/api/users/${userId}/summaries/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ year, month }),
-    });
-    if (!response.ok) throw new Error('Error al generar el resumen');
-    return response.json();
-  },
-
-  // Obtener datos guardados del perfil
-  getUserProfile: async (userId) => {
-    const response = await fetch(`${API_BASE_URL}/api/users/${userId}`);
-    if (!response.ok) throw new Error('Error al obtener los datos del perfil');
-    return response.json();
-  },
-
-  // Obtener perfil público usando el username de la URL
-    getProfileByUsername: async (username) => {
-      const response = await fetch(`${API_BASE_URL}/api/profiles/username/${username}`);
-      if (!response.ok) throw new Error('Perfil no encontrado');
-      return response.json();
-    },
-
-  // Actualizar datos del perfil
-  updateUserProfile: async (userId, datos) => {
-    const response = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(datos),
-    });
-    if (!response.ok) throw new Error(`Código ${response.status}`);
-    return response.json();
+    return await handleResponse(response);
+  } catch (error) {
+    console.error(`API Error [${endpoint}]:`, error.message);
+    throw error;
   }
 };
+
+// ==================== API METHODS ====================
+
+export const api = {
+  // 🔍 BÚSQUEDA
+  searchAlbums: (query) =>
+    fetchApi(`/api/search?q=${encodeURIComponent(query)}`),
+
+  // 🎵 ESCUCHAS
+  registerListen: (albumId, userId, rating, review) =>
+    fetchApi('/api/listen', {
+      method: 'POST',
+      body: JSON.stringify({ albumId, userId, rating, review })
+    }),
+
+  getUserHistory: (userId, limit = 50, offset = 0) =>
+    fetchApi(`/api/users/${userId}/history?limit=${limit}&offset=${offset}`),
+
+  // 👤 PERFIL
+  getUserProfile: (userId) =>
+    fetchApi(`/api/users/${userId}`),
+
+  updateUserProfile: (userId, { username, bio }) =>
+    fetchApi(`/api/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ username, bio })
+    }),
+
+  getPublicProfile: (username) =>
+    fetchApi(`/api/profiles/username/${username}`),
+
+  getPublicHistory: (username, limit = 20) =>
+    fetchApi(`/api/profiles/${username}/history?limit=${limit}`),
+
+  // 📊 RESÚMENES
+  generateMonthlySummary: (userId, year, month) =>
+    fetchApi(`/api/users/${userId}/summaries/generate`, {
+      method: 'POST',
+      body: JSON.stringify({ year, month })
+    }),
+
+  // ❤️ HEALTH
+  checkHealth: () =>
+    fetchApi('/health').catch(() => ({ status: 'offline' }))
+};
+
+export default api;
