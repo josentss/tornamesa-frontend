@@ -79,7 +79,7 @@ export function Header({ currentPage = 'home' }) {
                         Buscar
                       </Link>
                       <Link
-                        href={`/${user.email.split('@')[0]}`}
+                        href={`/perfil/${username}`}
                         className="block text-sm text-stone-400 hover:text-[#87ceeb] px-3 py-2 rounded hover:bg-[#1e293b] transition-all"
                         onClick={() => setShowMenu(false)}
                       >
