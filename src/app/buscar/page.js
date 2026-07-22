@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { api } from "../lib/api";
-import { useAuth } from "../context/AuthContext";
+import { api } from "../../lib/api";
+import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
-import { Header, Footer, ErrorMessage, SuccessMessage, LoadingSpinner } from "../components/shared";
+import { Header, Footer, ErrorMessage, SuccessMessage, LoadingSpinner } from "../../components/shared";
 
 const AlbumCard = ({ album, onSave, loading = false }) => (
   <div className="group">

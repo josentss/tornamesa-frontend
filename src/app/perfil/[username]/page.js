@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { api } from "../../lib/api";
+import { api } from "../../../lib/api";
 import Link from "next/link";
-import { Header, Footer, LoadingSpinner, ErrorMessage } from "../../components/shared";
+import { Header, Footer, LoadingSpinner, ErrorMessage } from "../../../components/shared";
 
 export default function UserProfilePage({ params }) {
   const { username } = params;
