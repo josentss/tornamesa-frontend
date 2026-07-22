@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { api } from "../../../lib/api";
+import { api } from "../../lib/api";
 import { useRouter } from "next/navigation";
 import { Header, Footer, LoadingSpinner, ErrorMessage, SuccessMessage } from "../../components/shared";
 
