@@ -1,8 +1,6 @@
 /* tornamesa-frontend/src/app/globals.css */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* ==================== CUSTOM VARIABLES ==================== */
 @layer base {
