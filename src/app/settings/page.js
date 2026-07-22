@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { api } from "../lib/api";
+import { useAuth } from "../../context/AuthContext";
+import { api } from "../../../lib/api";
 import { useRouter } from "next/navigation";
-import { Header, Footer, LoadingSpinner, ErrorMessage, SuccessMessage } from "../components/shared";
+import { Header, Footer, LoadingSpinner, ErrorMessage, SuccessMessage } from "../../components/shared";
 
 export default function SettingsPage() {
   const { user } = useAuth();
