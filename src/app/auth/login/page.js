@@ -1,48 +1,41 @@
-// tornamesa-frontend/src/app/auth/login/page.js
+"use client";
 
-'use client';
-
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ErrorMessage, LoadingSpinner } from '@/components/shared';
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ErrorMessage, LoadingSpinner } from "../../components/shared";
 
 export default function LoginPage() {
   const { signIn } = useAuth();
   const router = useRouter();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!email || !password) {
-      setError('Email y contraseña requeridos');
+      setError("Email y contraseña requeridos");
       return;
     }
 
     setLoading(true);
     try {
       await signIn(email, password);
-      router.push('/');
+      router.push("/");
     } catch (err) {
-      setError(err.message || 'Error al iniciar sesión');
+      setError(err.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0a0f16] flex items-center justify-center">
-        <LoadingSpinner message="Iniciando sesión..." />
-      </div>
-    );
+    return <LoadingSpinner message="Iniciando sesión..." />;
   }
 
   return (
@@ -53,7 +46,7 @@ export default function LoginPage() {
           <p className="text-stone-400">Inicia sesión</p>
         </div>
 
-        {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+        {error && <ErrorMessage message={error} onDismiss={() => setError("")} />}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -73,14 +66,14 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#87ceeb] text-[#0a0f16] py-2 font-bold hover:bg-white disabled:opacity-50"
+            className="w-full bg-[#87ceeb] text-[#0a0f16] py-2 font-bold hover:bg-white disabled:opacity-50 rounded transition-all"
           >
             entrar
           </button>
         </form>
 
         <div className="text-center text-sm text-stone-400">
-          ¿No tienes cuenta?{' '}
+          ¿No tienes cuenta?{" "}
           <Link href="/auth/register" className="text-[#87ceeb] hover:text-white">
             registrarse
           </Link>

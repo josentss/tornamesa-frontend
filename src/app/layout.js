@@ -1,12 +1,9 @@
-// tornamesa-frontend/src/app/layout.js
-
 import './globals.css';
-import { AuthProvider } from '@/context/AuthContext';
+import { AuthProvider } from "../context/AuthContext";
 
 export const metadata = {
-  title: 'Tornamesa - Letterboxd para Música',
-  description: 'Registra los discos que escuchas, guarda tus favoritos y comparte con tus amigos',
-  charset: 'utf-8',
+  title: 'Tornamesa',
+  description: 'Registra los discos que escuchas. Guarda tus favoritos. Compártelos.',
 };
 
 export const viewport = {
@@ -18,8 +15,8 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className="bg-[#0a0f16] text-[#f0f9ff]">
+    <html lang="es">
+      <body className="bg-[#0a0f16] text-[#f0f9ff] min-h-screen flex flex-col antialiased">
         <AuthProvider>
           {children}
         </AuthProvider>

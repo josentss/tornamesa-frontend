@@ -1,18 +1,16 @@
-// tornamesa-frontend/src/app/perfil/[username]/page.js
+"use client";
 
-'use client';
-
-import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
-import Link from 'next/link';
-import { Header, Footer, LoadingSpinner, ErrorMessage } from '@/components/shared';
+import { useState, useEffect } from "react";
+import { api } from "../../lib/api";
+import Link from "next/link";
+import { Header, Footer, LoadingSpinner, ErrorMessage } from "../../components/shared";
 
 export default function UserProfilePage({ params }) {
   const { username } = params;
   const [profile, setProfile] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -25,8 +23,8 @@ export default function UserProfilePage({ params }) {
         setProfile(profileData);
         setHistory(historyData || []);
       } catch (err) {
-        console.error('Error:', err);
-        setError('Usuario no encontrado');
+        console.error("Error:", err);
+        setError("Usuario no encontrado");
       } finally {
         setLoading(false);
       }
@@ -37,7 +35,7 @@ export default function UserProfilePage({ params }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0f16] flex flex-col">
+      <div className="flex flex-col min-h-screen">
         <Header />
         <LoadingSpinner />
         <Footer />
@@ -47,11 +45,11 @@ export default function UserProfilePage({ params }) {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-[#0a0f16] flex flex-col">
+      <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
-            <ErrorMessage message={error || 'Perfil no encontrado'} />
+            <ErrorMessage message={error || "Perfil no encontrado"} />
             <Link href="/" className="bg-[#87ceeb] text-[#0a0f16] px-4 py-2 font-bold inline-block mt-4 hover:bg-white">
               Volver
             </Link>
@@ -70,19 +68,19 @@ export default function UserProfilePage({ params }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f16] text-[#f0f9ff] flex flex-col">
+    <div className="flex flex-col min-h-screen bg-[#0a0f16]">
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-8">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 md:px-6 py-6 md:py-12 space-y-8">
         {/* Header */}
         <div className="border-b border-[#1e293b] pb-6">
           <div className="flex items-start gap-4 mb-4">
-            <div className="w-20 h-20 rounded-full bg-[#131b26] border border-[#1e293b] flex items-center justify-center text-4xl font-bold text-[#87ceeb]">
+            <div className="w-20 h-20 rounded-full bg-[#131b26] border border-[#1e293b] flex items-center justify-center text-3xl font-bold text-[#87ceeb]">
               {profile.username.charAt(0).toUpperCase()}
             </div>
             <div>
               <h1 className="text-2xl font-bold">@{profile.username}</h1>
-              {profile.bio && <p className="text-stone-400 mt-2">{profile.bio}</p>}
+              {profile.bio && <p className="text-stone-400 mt-2 text-sm">{profile.bio}</p>}
               {profile.created_at && (
                 <p className="text-xs text-stone-500 mt-2">
                   Se unió en {new Date(profile.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
@@ -92,21 +90,21 @@ export default function UserProfilePage({ params }) {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="border border-[#1e293b] p-3">
+          <div className="border border-[#1e293b] p-3 rounded">
             <p className="text-xs text-stone-500 mb-1">Álbumes</p>
             <p className="text-2xl font-bold text-[#87ceeb]">{stats.totalAlbumsListened || 0}</p>
           </div>
-          <div className="border border-[#1e293b] p-3">
+          <div className="border border-[#1e293b] p-3 rounded">
             <p className="text-xs text-stone-500 mb-1">Horas</p>
             <p className="text-2xl font-bold text-[#87ceeb]">{Math.round(stats.totalMinutesSpended / 60) || 0}</p>
           </div>
-          <div className="border border-[#1e293b] p-3">
+          <div className="border border-[#1e293b] p-3 rounded">
             <p className="text-xs text-stone-500 mb-1">Rating</p>
             <p className="text-2xl font-bold text-[#87ceeb]">{stats.averageRating || '0'}</p>
           </div>
-          <div className="border border-[#1e293b] p-3">
+          <div className="border border-[#1e293b] p-3 rounded">
             <p className="text-xs text-stone-500 mb-1">Minutos</p>
             <p className="text-2xl font-bold text-[#87ceeb]">{stats.totalMinutesSpended || 0}</p>
           </div>
@@ -114,7 +112,7 @@ export default function UserProfilePage({ params }) {
 
         {/* Rating Distribution */}
         {stats.ratingsDistribution && Object.values(stats.ratingsDistribution).some(v => v > 0) && (
-          <div className="border border-[#1e293b] p-6">
+          <div className="border border-[#1e293b] p-6 rounded">
             <h2 className="text-sm font-bold text-stone-500 mb-4">Calificaciones</h2>
             <div className="space-y-2">
               {[5, 4, 3, 2, 1].map(rating => (
@@ -138,11 +136,11 @@ export default function UserProfilePage({ params }) {
         {/* Recent */}
         {history.length > 0 && (
           <div>
-            <h2 className="text-sm font-bold text-stone-500 mb-4">Recientes</h2>
+            <h2 className="text-sm font-bold text-stone-500 mb-4">Escuchas recientes</h2>
             <div className="space-y-2">
               {history.map(item => (
-                <div key={item.id} className="flex gap-3 border border-[#1e293b] p-3 hover:border-[#87ceeb]">
-                  <img src={item.albums?.cover_url} alt="" className="w-12 h-12 flex-shrink-0" />
+                <div key={item.id} className="flex gap-3 border border-[#1e293b] p-3 rounded hover:border-[#87ceeb] transition-all">
+                  <img src={item.albums?.cover_url} alt="" className="w-12 h-12 rounded flex-shrink-0 object-cover" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[#f0f9ff] truncate">{item.albums?.title}</p>
                     <p className="text-xs text-stone-400">{item.albums?.artist}</p>

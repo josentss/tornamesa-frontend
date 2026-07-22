@@ -7,15 +7,17 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-// HEADER MINIMALISTA
-export function Header() {
-  const { user, signOut } = useAuth();
+// HEADER - TU DISEÑO ORIGINAL EXACTO
+export function Header({ user: initialUser }) {
+  const { user: authUser, signOut } = useAuth();
   const router = useRouter();
+  const user = initialUser || authUser;
   const [showMenu, setShowMenu] = useState(false);
 
   const handleSignOut = async () => {
     try {
       await signOut();
+      setShowMenu(false);
       router.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
@@ -23,80 +25,85 @@ export function Header() {
   };
 
   return (
-    <header className="border-b border-[#1e293b] bg-[#0a0f16] sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-[#f0f9ff]">
-          tornamesa
+    <header className="w-full bg-[#0a0f16] border-b border-[#1e293b] sticky top-0 z-50">
+      <div className="max-w-5xl mx-auto flex items-center justify-between px-4 md:px-6 py-4">
+        <Link href="/" className="text-xl font-bold tracking-tighter text-[#f0f9ff]">
+          Tornamesa
         </Link>
 
-        <nav className="flex items-center gap-6 text-sm">
+        <div className="flex items-center gap-4 md:gap-6">
+          <Link href="/buscar" className="text-stone-400 hover:text-[#87ceeb] transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </Link>
+
           {user ? (
-            <>
-              <Link href="/buscar" className="text-stone-400 hover:text-[#f0f9ff]">
-                buscar
-              </Link>
-              <Link href={`/perfil/${user.email.split('@')[0]}`} className="text-stone-400 hover:text-[#f0f9ff]">
-                perfil
-              </Link>
-              <Link href="/settings" className="text-stone-400 hover:text-[#f0f9ff]">
-                configuración
-              </Link>
+            <div className="relative">
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="w-8 h-8 rounded-full bg-[#131b26] border border-[#1e293b] flex items-center justify-center hover:border-[#87ceeb] transition-colors"
+              >
+                <span className="text-xs font-bold text-[#87ceeb]">{user.email.charAt(0).toUpperCase()}</span>
+              </button>
 
-              <div className="relative">
-                <button
-                  onClick={() => setShowMenu(!showMenu)}
-                  className="w-8 h-8 rounded-full bg-[#131b26] border border-[#1e293b] text-xs font-bold text-[#87ceeb]"
-                >
-                  {user.email.charAt(0).toUpperCase()}
-                </button>
-
-                {showMenu && (
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-[#131b26] border border-[#1e293b] rounded shadow-lg">
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 text-sm text-stone-400 hover:text-[#87ceeb] hover:bg-[#1e293b]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    Configuración
+                  </Link>
+                  <Link
+                    href={`/perfil/${user.email.split('@')[0]}`}
+                    className="block px-4 py-2 text-sm text-stone-400 hover:text-[#87ceeb] hover:bg-[#1e293b]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    Mi perfil
+                  </Link>
                   <button
                     onClick={handleSignOut}
-                    className="absolute right-0 mt-2 px-4 py-2 bg-[#131b26] border border-[#1e293b] text-sm text-stone-400 hover:text-[#f0f9ff]"
+                    className="w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-[#1e293b]"
                   >
                     Cerrar sesión
                   </button>
-                )}
-              </div>
-            </>
+                </div>
+              )}
+            </div>
           ) : (
-            <>
-              <Link href="/auth/login" className="text-stone-400 hover:text-[#f0f9ff]">
-                entrar
-              </Link>
-              <Link href="/auth/register" className="bg-[#87ceeb] text-[#0a0f16] px-3 py-1 rounded text-sm font-bold hover:bg-white">
-                registrarse
-              </Link>
-            </>
+            <Link href="/auth/login" className="w-8 h-8 rounded-full bg-[#131b26] border border-[#1e293b] flex items-center justify-center hover:border-[#87ceeb] transition-colors">
+              <span className="text-xs font-bold text-[#87ceeb]">?</span>
+            </Link>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   );
 }
 
-// FOOTER MINIMALISTA
+// FOOTER - TU DISEÑO ORIGINAL EXACTO
 export function Footer() {
   return (
-    <footer className="border-t border-[#1e293b] mt-12 py-6 bg-[#0a0f16]">
-      <div className="max-w-7xl mx-auto px-4 text-xs text-stone-500 text-center">
-        <p>© 2026 tornamesa</p>
+    <footer className="border-t border-[#1e293b] mt-auto py-6 bg-[#0a0f16]">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-stone-500">
+        <p>© {new Date().getFullYear()} tornamesa</p>
+        <div className="flex gap-6">
+          <Link href="#" className="hover:text-[#87ceeb] transition-colors">Acerca</Link>
+          <Link href="#" className="hover:text-[#87ceeb] transition-colors">Contacto</Link>
+        </div>
       </div>
     </footer>
   );
 }
 
-// LOADING
+// COMPONENTES SIMPLES PARA OTRAS PÁGINAS
 export function LoadingSpinner({ message = 'Cargando...' }) {
-  return (
-    <div className="py-12 text-center text-stone-400">
-      <p>{message}</p>
-    </div>
-  );
+  return <div className="min-h-screen flex items-center justify-center text-stone-500 bg-[#0a0f16]">{message}</div>;
 }
 
-// ERROR
 export function ErrorMessage({ message, onDismiss }) {
   return (
     <div className="mb-4 p-3 bg-red-900/20 border border-red-800 text-red-300 text-sm flex justify-between">
@@ -106,7 +113,6 @@ export function ErrorMessage({ message, onDismiss }) {
   );
 }
 
-// SUCCESS
 export function SuccessMessage({ message }) {
   return (
     <div className="mb-4 p-3 bg-green-900/20 border border-green-800 text-green-300 text-sm">
@@ -115,44 +121,4 @@ export function SuccessMessage({ message }) {
   );
 }
 
-// ALBUM CARD MINIMALISTA
-export function AlbumCard({ album, onSave, loading = false }) {
-  return (
-    <div className="group">
-      <div className="aspect-square bg-[#131b26] border border-[#1e293b] overflow-hidden mb-2">
-        <img
-          src={album.coverUrl || '/placeholder.jpg'}
-          alt={album.title}
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <h3 className="text-sm font-medium text-[#f0f9ff] truncate">
-        {album.title}
-      </h3>
-      <p className="text-xs text-stone-400 truncate">
-        {album.artist}
-      </p>
-      {onSave && (
-        <button
-          onClick={() => onSave(album)}
-          disabled={loading}
-          className="mt-2 w-full text-xs bg-[#87ceeb] text-[#0a0f16] py-1.5 font-bold hover:bg-white disabled:opacity-50"
-        >
-          {loading ? 'guardando...' : 'guardar'}
-        </button>
-      )}
-    </div>
-  );
-}
-
-// STATS CARD
-export function StatsCard({ label, value }) {
-  return (
-    <div className="border border-[#1e293b] p-3">
-      <p className="text-xs text-stone-500 mb-1">{label}</p>
-      <p className="text-2xl font-bold text-[#87ceeb]">{value}</p>
-    </div>
-  );
-}
-
-export default { Header, Footer, LoadingSpinner, ErrorMessage, SuccessMessage, AlbumCard, StatsCard };
+export default { Header, Footer, LoadingSpinner, ErrorMessage, SuccessMessage };

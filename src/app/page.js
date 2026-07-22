@@ -1,177 +1,106 @@
-// tornamesa-frontend/src/app/page.js
+"use client";
 
-'use client';
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { api } from "../lib/api";
+import Link from "next/link";
+import { Header, Footer } from "../components/shared";
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { api } from '@/lib/api';
-import Link from 'next/link';
-import { Header, Footer, LoadingSpinner } from '@/components/shared';
-
-function LandingView() {
-  return (
-    <div className="flex-1 flex items-center justify-center px-4 py-20">
-      <div className="max-w-md text-center space-y-8">
-        <h1 className="text-5xl font-bold text-[#f0f9ff]">tornamesa</h1>
-        <p className="text-lg text-stone-400">
-          Registra los discos que escuchas.<br />
-          Guarda tus favoritos.<br />
-          Comparte con tus amigos.
-        </p>
-        <div className="flex gap-3 justify-center">
-          <Link href="/auth/register" className="bg-[#87ceeb] text-[#0a0f16] px-6 py-2 font-bold hover:bg-white">
-            Empezar
-          </Link>
-          <Link href="/auth/login" className="border border-[#1e293b] text-stone-400 px-6 py-2 hover:border-[#87ceeb] hover:text-[#87ceeb]">
-            Entrar
-          </Link>
-        </div>
+const AmigoCard = ({ album, usuario }) => (
+  <div className="group flex flex-col w-full">
+    <div className="relative aspect-square w-full bg-[#131b26] rounded border border-[#1e293b] overflow-hidden transition-all duration-300">
+      <img src={album.coverUrl} alt={album.title} className="w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 sm:p-3 flex flex-col justify-end">
+        <h3 className="text-xs sm:text-sm font-bold text-[#f0f9ff] leading-tight truncate">{album.title}</h3>
+        <p className="text-[9px] sm:text-[10px] text-stone-300 truncate">{album.artist}</p>
       </div>
     </div>
-  );
-}
-
-function DashboardView({ historial, stats }) {
-  const [topAlbums, setTopAlbums] = useState([]);
-
-  useEffect(() => {
-    if (historial && historial.length > 0) {
-      const albumCounts = {};
-      const albumDetails = {};
-
-      historial.forEach(item => {
-        const album = item.albums;
-        if (album) {
-          albumCounts[album.spotify_id] = (albumCounts[album.spotify_id] || 0) + 1;
-          albumDetails[album.spotify_id] = album;
-        }
-      });
-
-      const sorted = Object.entries(albumCounts)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 6)
-        .map(([id, count]) => ({
-          ...albumDetails[id],
-          plays: count
-        }));
-
-      setTopAlbums(sorted);
-    }
-  }, [historial]);
-
-  return (
-    <main className="max-w-7xl mx-auto px-4 py-8 space-y-12">
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="border border-[#1e293b] p-3">
-          <p className="text-xs text-stone-500 mb-1">Álbumes</p>
-          <p className="text-2xl font-bold text-[#87ceeb]">{stats.totalAlbumsListened || 0}</p>
-        </div>
-        <div className="border border-[#1e293b] p-3">
-          <p className="text-xs text-stone-500 mb-1">Horas</p>
-          <p className="text-2xl font-bold text-[#87ceeb]">{Math.round(stats.totalMinutesSpended / 60) || 0}</p>
-        </div>
-        <div className="border border-[#1e293b] p-3">
-          <p className="text-xs text-stone-500 mb-1">Minutos</p>
-          <p className="text-2xl font-bold text-[#87ceeb]">{stats.totalMinutesSpended || 0}</p>
-        </div>
+    <div className="mt-2 flex items-center gap-2">
+      <div className="w-5 h-5 rounded-full bg-[#1e293b] flex shrink-0 items-center justify-center text-[10px] font-bold text-[#87ceeb]">
+        {usuario.charAt(0).toUpperCase()}
       </div>
+      <span className="text-[11px] sm:text-xs text-stone-400 hover:text-[#f0f9ff] cursor-pointer transition-colors truncate">{usuario}</span>
+    </div>
+  </div>
+);
 
-      {/* Top Albums */}
-      {topAlbums.length > 0 && (
-        <div>
-          <h2 className="text-sm font-bold text-stone-500 mb-4">Favoritos</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {topAlbums.map(album => (
-              <div key={album.spotify_id}>
-                <div className="aspect-square bg-[#131b26] border border-[#1e293b] relative mb-2">
-                  <img src={album.cover_url} alt={album.title} className="w-full h-full object-cover" />
-                  <div className="absolute top-1 right-1 bg-[#87ceeb] text-[#0a0f16] text-xs font-bold px-2 py-0.5">
-                    {album.plays}
-                  </div>
-                </div>
-                <p className="text-xs font-medium text-[#f0f9ff] truncate">{album.title}</p>
-                <p className="text-xs text-stone-400 truncate">{album.artist}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+const LandingView = () => (
+  <div className="flex-1 flex flex-col justify-center items-center px-4 py-12 text-center min-h-[60vh]">
+    <div className="max-w-md space-y-6">
+      <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-[#f0f9ff] lowercase mb-4">tornamesa</h1>
+      <p className="text-lg md:text-xl font-light text-stone-400 leading-relaxed">
+        Registra los discos que escuchas. <br />
+        Guarda tus favoritos. <br />
+        Dile a tus amigos qué estás oyendo.
+      </p>
+      <Link href="/auth/register" className="inline-block bg-[#87ceeb] text-[#0a0f16] px-8 py-3 rounded font-bold hover:bg-white transition-all">
+        Empezar ahora
+      </Link>
+    </div>
+  </div>
+);
 
-      {/* Recent */}
-      {historial.length > 0 && (
-        <div>
-          <h2 className="text-sm font-bold text-stone-500 mb-4">Recientes</h2>
-          <div className="space-y-2">
-            {historial.slice(0, 10).map(item => (
-              <div key={item.id} className="flex gap-3 border border-[#1e293b] p-3 hover:border-[#87ceeb]">
-                <img src={item.albums?.cover_url} alt="" className="w-10 h-10 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#f0f9ff] truncate">{item.albums?.title}</p>
-                  <p className="text-xs text-stone-400">{item.albums?.artist}</p>
-                </div>
-                {item.rating && <div className="text-[#FFF096]">{'★'.repeat(item.rating)}</div>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+const DashboardView = ({ historial, resumen }) => (
+  <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-12 space-y-12 w-full">
+    <section>
+      <h2 className="text-xs md:text-sm text-stone-500 font-bold mb-4 md:mb-6 uppercase tracking-wider">Lo que han escuchado tus amigos</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+        <AmigoCard
+            album={{title: "In Rainbows", artist: "Radiohead", coverUrl: "https://i.scdn.co/image/ab67616d0000b273b063231f24d7821611005a30"}}
+            usuario="Santi"
+        />
+      </div>
+    </section>
 
-      {topAlbums.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-stone-400 mb-4">Aún no tienes escuchas registradas</p>
-          <Link href="/buscar" className="bg-[#87ceeb] text-[#0a0f16] px-4 py-2 font-bold hover:bg-white inline-block">
-            Buscar álbumes
-          </Link>
+    <section className="bg-[#131b26] border border-[#1e293b] p-4 md:p-6 rounded shadow-lg overflow-hidden">
+      <h2 className="text-xs md:text-sm text-[#87ceeb] font-bold mb-4 md:mb-6 uppercase tracking-wider">Tu actividad reciente</h2>
+      {resumen.length > 0 ? (
+        <div className="space-y-2">
+          {resumen.map(([album, count]) => (
+            <div key={album} className="flex justify-between items-center py-2 hover:bg-[#1e293b]/30 px-2 -mx-2 rounded transition-colors">
+              <span className="text-xs md:text-sm font-medium text-[#f0f9ff] truncate mr-4">{album}</span>
+              <span className="text-[#87ceeb] text-xs md:text-sm font-mono font-bold shrink-0">{count} reproducciones</span>
+            </div>
+          ))}
         </div>
+      ) : (
+        <p className="text-stone-500 text-sm italic">Aún no has registrado ninguna escucha. ¡Ve a buscar nueva música!</p>
       )}
-    </main>
-  );
-}
+    </section>
+  </main>
+);
 
 export default function Page() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading } = useAuth();
   const [historial, setHistorial] = useState([]);
-  const [stats, setStats] = useState({});
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const data = await api.getUserHistory(user.id);
-        setHistorial(data.history || []);
-        setStats(data.stats || {});
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setLoading(false);
+      if (user) {
+        try {
+          const data = await api.getUserHistory(user.id);
+          setHistorial(Array.isArray(data) ? data : data.history || []);
+        } catch (error) {
+          console.error('Error fetching history:', error);
+          setHistorial([]);
+        }
       }
     }
+    fetchData();
+  }, [user]);
 
-    if (!authLoading) {
-      fetchData();
-    }
-  }, [user, authLoading]);
+  const resumenOrdenado = Object.entries(historial.reduce((acc, item) => {
+    const album = item.albums?.title || "Desconocido";
+    acc[album] = (acc[album] || 0) + 1;
+    return acc;
+  }, {})).sort(([, a], [, b]) => b - a).slice(0, 5);
 
-  if (authLoading || (user && loading)) {
-    return (
-      <div className="min-h-screen bg-[#0a0f16] text-[#f0f9ff] flex flex-col">
-        <Header />
-        <LoadingSpinner />
-        <Footer />
-      </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-stone-500 bg-[#0a0f16]">Cargando...</div>;
 
   return (
-    <div className="min-h-screen bg-[#0a0f16] text-[#f0f9ff] flex flex-col">
-      <Header />
-      {user ? <DashboardView historial={historial} stats={stats} /> : <LandingView />}
+    <div className="flex flex-col flex-1">
+      <Header user={user} />
+      {user ? <DashboardView historial={historial} resumen={resumenOrdenado} /> : <LandingView />}
       <Footer />
     </div>
   );

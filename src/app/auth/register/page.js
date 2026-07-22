@@ -1,60 +1,53 @@
-// tornamesa-frontend/src/app/auth/register/page.js
+"use client";
 
-'use client';
-
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ErrorMessage, LoadingSpinner } from '@/components/shared';
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ErrorMessage, LoadingSpinner } from "../../components/shared";
 
 export default function RegisterPage() {
   const { signUp } = useAuth();
   const router = useRouter();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!email || !password || !confirmPassword) {
-      setError('Todos los campos son requeridos');
+      setError("Todos los campos requeridos");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError("Las contraseñas no coinciden");
       return;
     }
 
     if (password.length < 6) {
-      setError('Mínimo 6 caracteres');
+      setError("Mínimo 6 caracteres");
       return;
     }
 
     setLoading(true);
     try {
       await signUp(email, password);
-      alert('Registrado. Verifica tu email para activar la cuenta.');
-      router.push('/auth/login');
+      alert("Registrado. Verifica tu email.");
+      router.push("/auth/login");
     } catch (err) {
-      setError(err.message || 'Error al registrarse');
+      setError(err.message || "Error al registrarse");
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0a0f16] flex items-center justify-center">
-        <LoadingSpinner message="Registrando..." />
-      </div>
-    );
+    return <LoadingSpinner message="Registrando..." />;
   }
 
   return (
@@ -65,7 +58,7 @@ export default function RegisterPage() {
           <p className="text-stone-400">Crea una cuenta</p>
         </div>
 
-        {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+        {error && <ErrorMessage message={error} onDismiss={() => setError("")} />}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -92,14 +85,14 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#87ceeb] text-[#0a0f16] py-2 font-bold hover:bg-white disabled:opacity-50"
+            className="w-full bg-[#87ceeb] text-[#0a0f16] py-2 font-bold hover:bg-white disabled:opacity-50 rounded transition-all"
           >
             registrarse
           </button>
         </form>
 
         <div className="text-center text-sm text-stone-400">
-          ¿Ya tienes cuenta?{' '}
+          ¿Ya tienes cuenta?{" "}
           <Link href="/auth/login" className="text-[#87ceeb] hover:text-white">
             entrar
           </Link>
